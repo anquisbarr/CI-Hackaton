@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+enum ROLE {
+  ADMIN
+  USER
+  EMPLOYEE
+}
+
+enum STATUS {
+  PENDING
+  CONFIRMED
+  ACTIVE
+  DELIVERED
+}
+
+model User {
+  id       String @unique @default(uuid())
+  email    String @unique
+  name     String
+  password String
+  role     ROLE   @default(USER)
+
+  createdAt  DateTime     @default(now())
+  updateAt   DateTime     @updatedAt
+  LoginToken LoginToken[]
+
+  Order Order[]
+}
+
+model LoginToken {
+  id        String   @unique @default(uuid())
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  redirect  String   @default("/")
+}
+
+model Product {
+  id      String @unique @default(uuid())
+  code    String @unique
+  name    String
+  price   String //TODO: fix
+  stock   String //TODO: fix
+  image   String
+  content String
+
+  category     Category @relation(fields: [categoryCode], references: [code])
+  categoryCode String
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  ProductsOnOrder ProductsOnOrder[]
+}
+
+model Category {
+  id       String    @unique @default(uuid())
+  code     String    @unique
+  name     String
+  content  String
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id     String @unique @default(uuid())
+  status STATUS @default(PENDING)
+  total  String //TODO: fix
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  ProductsOnOrder ProductsOnOrder[]
+}
+
+model ProductsOnOrder {
+  id        String  @unique @default(uuid())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  String //TODO: fix
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
