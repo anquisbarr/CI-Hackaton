@@ -22,8 +22,8 @@ export const ProductForm = () => {
   
     return (
       <>
-        <Stack alignItems={"center"}>
-          <Box textAlign="center" mt={2}>
+        <Stack alignItems={"center"} backgroundColor="white" pt={4} pb={8} borderRadius="md">
+          <Box textAlign="center" mt={2} backgroundColor="white">
             <Text fontSize={"2xl"} fontWeight="bold" textColor={"purple.500"}>
               Agregar un nuevo producto
             </Text>

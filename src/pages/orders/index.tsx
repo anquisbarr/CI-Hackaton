@@ -1,29 +1,31 @@
-import { useState } from "react";
-import { trpc } from "../../utils/trpc";
-import { Flex, VStack, HStack, Box } from "@chakra-ui/layout";
-import { Button } from "@chakra-ui/button";
-import { TableContainer, Table, Thead, Tbody, Tr, Td } from "@chakra-ui/table";
-import { Select } from "@chakra-ui/select";
-import { UpdateProductOrderInput } from "../../schema/product-order.schema";
-import Loading from "../../components/Loading";
+import { useState } from 'react';
+import { trpc } from '../../utils/trpc';
+import { Flex, VStack, HStack, Box } from '@chakra-ui/layout';
+import { Button } from '@chakra-ui/button';
+import { TableContainer, Table, Thead, Tbody, Tr, Td } from '@chakra-ui/table';
+import { Select } from '@chakra-ui/select';
+import { UpdateProductOrderInput } from '../../schema/product-order.schema';
+import Loading from '../../components/Loading';
+import NextLink from 'next/link';
+import {Spacer} from '@chakra-ui/react';
 
-type STATUS = "PENDING" | "CONFIRMED" | "ACTIVE" | "DELIVERED";
+type STATUS = 'PENDING' | 'CONFIRMED' | 'ACTIVE' | 'DELIVERED';
 
 const OrdersListingPage = () => {
-  const { data, isLoading } = trpc.useQuery(["orders.all"]);
+  const { data, isLoading } = trpc.useQuery(['orders.all']);
   const {
     mutate,
     isLoading: isUpdating,
     error,
-  } = trpc.useMutation("orders.update-status");
-  const [selected, setSelected] = useState("");
+  } = trpc.useMutation('orders.update-status');
+  const [selected, setSelected] = useState('');
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelected(e.target.value);
   };
 
   const handleOrderStatusList = (status: string) => {
-    const statusList = ["PENDING", "CONFIRMED", "ACTIVE", "DELIVERED"];
+    const statusList = ['PENDING', 'CONFIRMED', 'ACTIVE', 'DELIVERED'];
     if (statusList.includes(status)) {
       let itemToRemove = statusList.indexOf(status);
       statusList.splice(itemToRemove, 1);
@@ -42,9 +44,20 @@ const OrdersListingPage = () => {
 
   return (
     <VStack mt={5}>
-      <Flex alignItems={"center"} textAlign={"center"}>
+      <Flex justify="right" w="full" pr={20}>
+        <NextLink href='/orders/new/'>
+          <Button colorScheme={'blue'}>Nueva Orden</Button>
+        </NextLink>
+      </Flex>
+      <Flex alignItems={'center'} textAlign={'center'}>
         <TableContainer>
-          <Table>
+          <Table
+            backgroundColor='white'
+            borderRadius='lg'
+            marginTop={3}
+            variant='striped'
+            boxShadow='md'
+          >
             <Thead>
               <Tr>
                 <th>Código de Orden</th>
@@ -53,7 +66,7 @@ const OrdersListingPage = () => {
                 <th>Total </th>
               </Tr>
             </Thead>
-            <Tbody textAlign={"center"}>
+            <Tbody textAlign={'center'}>
               {data?.map((order) => {
                 return (
                   <Tr key={order.id}>
@@ -74,7 +87,7 @@ const OrdersListingPage = () => {
                     </Td>
                     <Td>
                       <Button
-                        colorScheme={"purple"}
+                        colorScheme={'blue'}
                         disabled={isUpdating}
                         onClick={() =>
                           handleUpdateStatus({
@@ -82,6 +95,7 @@ const OrdersListingPage = () => {
                             status: selected as STATUS,
                           })
                         }
+                        variant="ghost"
                       >
                         Actualizar
                       </Button>

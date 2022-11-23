@@ -16,18 +16,18 @@ export const ProductsList = () => {
       <VStack mt={5}>
         <HStack>
           <Box ml={500}>
+            <NextLink href='/products/edit/'>
+                <Button colorScheme={'blue'} variant="outline">Editar productos</Button>
+            </NextLink>
+          </Box>
+          <Box>
             <NextLink href='/products/new/'>
               <Button colorScheme={'blue'}>Agregar productos</Button>
             </NextLink>
           </Box>
-          <Box>
-            <NextLink href='/products/edit/'>
-                <Button colorScheme={'blue'}>Editar productos</Button>
-            </NextLink>
-          </Box>
         </HStack>
         <Flex>
-          <Table>
+          <Table backgroundColor="white" borderRadius="lg" marginTop={3} variant='striped' boxShadow="md">
             <Thead>
               <Th>Código</Th>
               <Th>Nombre</Th>

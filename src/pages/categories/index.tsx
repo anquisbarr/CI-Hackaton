@@ -11,8 +11,8 @@ const CategoriesListingPage = () => {
 
   return (
     <Box alignItems={"center"} my={6} textAlign={'center'}>
-      <TableContainer>
-        <Table>
+      <TableContainer backgroundColor="white" borderRadius="md" p={8}>
+        <Table variant="striped">
           <Thead>
             <Tr>
               <th>Código</th>

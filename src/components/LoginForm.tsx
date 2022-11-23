@@ -49,7 +49,7 @@ export const LoginForm = () => {
 
   return (
     <>
-      <Stack alignItems="center" justifyContent={"center"}>
+      <Stack alignItems="center" justifyContent={"center"} backgroundColor="white" borderRadius="md" p={8} boxShadow="md">
         <Box textAlign="center" mt={2}>
           <Text fontSize={"2xl"} fontWeight="bold" textColor={"purple.500"}>
             Sign In to Your Account
@@ -75,7 +75,7 @@ export const LoginForm = () => {
             </FormControl>
 
             <button>
-              <Button colorScheme="purple" width="full" mt={2}>
+              <Button colorScheme="purple" width="full" mt={8}>
                 Sign In
               </Button>
             </button>
