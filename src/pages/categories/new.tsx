@@ -9,8 +9,8 @@ export const CreateCategoryPage = () => {
   const router = useRouter();
   const { handleSubmit, register } = useForm<CreateCategoryInput>();
   const { mutate, error } = trpc.useMutation("categories.create", {
-    onSuccess: ({ id }) => {
-      router.push(`/categories/${id}/`);
+    onSuccess: ({ code }) => {
+      router.push(`/categories/${code}/`);
     },
   });
 

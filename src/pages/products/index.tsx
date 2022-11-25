@@ -16,20 +16,28 @@ export const ProductsList = () => {
       <VStack mt={5}>
         <HStack>
           <Box ml={500}>
-            <NextLink href='/products/edit/'>
-                <Button colorScheme={'blue'} variant="outline">Editar productos</Button>
+            <NextLink href="/products/edit/">
+              <Button colorScheme={"blue"} variant="outline">
+                Editar productos
+              </Button>
             </NextLink>
           </Box>
           <Box>
-            <NextLink href='/products/new/'>
-              <Button colorScheme={'blue'}>Agregar productos</Button>
+            <NextLink href="/products/new/">
+              <Button colorScheme={"blue"}>Agregar productos</Button>
             </NextLink>
           </Box>
         </HStack>
         <Flex>
-          <Table backgroundColor="white" borderRadius="lg" marginTop={3} variant='striped' boxShadow="md">
+          <Table
+            backgroundColor="white"
+            borderRadius="lg"
+            marginTop={3}
+            variant="striped"
+            boxShadow="md"
+          >
             <Thead>
-              <Th>Código</Th>
+              <Th>Id</Th>
               <Th>Nombre</Th>
               <Th>Stock</Th>
               <Th>Precio (Soles)</Th>
@@ -39,7 +47,9 @@ export const ProductsList = () => {
               {data?.map((product) => {
                 return (
                   <Tr key={product.id}>
-                    <Td>{product.code}</Td>
+                    <NextLink href={`/products/${product.id}`}>
+                      <Td>{product.id}</Td>
+                    </NextLink>
                     <Td>{product.name}</Td>
                     <Td>{product.stock}</Td>
                     <Td>{product.price}</Td>

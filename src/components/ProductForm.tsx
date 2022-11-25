@@ -17,6 +17,8 @@ export const ProductForm = () => {
     });
   
     function onSubmit(values: CreateProductInput) {
+      values.id = values.categoryCode.concat(values.code);
+      values.price = parseFloat(values.price.toString());
       mutate(values);
     }
   
@@ -40,7 +42,7 @@ export const ProductForm = () => {
               </FormControl>
               <FormControl>
                 <FormLabel>Precio del producto</FormLabel>
-                <Input type="text" {...register(`price`)} />
+                <Input type="number" {...register(`price`)} />
               </FormControl>
               <FormControl>
                 <FormLabel>Cantidad de producto</FormLabel>

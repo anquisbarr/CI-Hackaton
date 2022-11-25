@@ -1,30 +1,35 @@
 import { Button, Flex, SimpleGrid, Text } from "@chakra-ui/react";
+import { router } from "@trpc/server";
+import { useRouter } from "next/router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import ItemBox from "../../components/ItemBox";
 import Loading from "../../components/Loading";
-import { CreateOrderInput, CreateProductOrderInput } from "../../schema/product-order.schema";
+import {
+  CreateOrderInput,
+  CreateProductOrderInput,
+} from "../../schema/product-order.schema";
 import { trpc } from "../../utils/trpc";
 
 export const NewOrderPage = () => {
   const { data, isLoading } = trpc.useQuery(["products.products"]);
-  const [selectedItems, setSelectedItems] = React.useState<CreateProductOrderInput[]>([]);
-  const { register, handleSubmit } = useForm<CreateOrderInput>();
-  const { mutate, error } = trpc.useMutation("orders.create-order");
-
-  function onSubmit(values: CreateOrderInput) {
-    values.productOrders = selectedItems;
-    register("productOrders");
-    // console.log("register", register);
-    // console.log("selectedItems []", selectedItems);
-    // console.log("values", values);
-    mutate(values);
-  }
+  const [selectedItems, setSelectedItems] = React.useState<
+    CreateProductOrderInput[]
+  >([]);
+  const { mutate, error, isLoading: orderCreateLoad } = trpc.useMutation("orders.create-order");
+  const router = useRouter();
   
+  function onSubmit(values: CreateOrderInput) {
+    mutate(values);
+    router.push("/orders");
+  }
+
   function handleSelect(selected: CreateProductOrderInput) {
     if (selectedItems.some((item) => item.productId === selected.productId)) {
       setSelectedItems([
-        ...selectedItems.filter((item) => item.productId !== selected.productId),
+        ...selectedItems.filter(
+          (item) => item.productId !== selected.productId
+        ),
       ]);
     } else {
       setSelectedItems([...selectedItems, selected]);
@@ -49,7 +54,9 @@ export const NewOrderPage = () => {
       newArr[index] = { ...newObject };
 
       if (newCount == 0) {
-        setSelectedItems([...selectedItems.filter((item) => item.productId !== id)]);
+        setSelectedItems([
+          ...selectedItems.filter((item) => item.productId !== id),
+        ]);
       } else {
         setSelectedItems([...newArr]);
       }
@@ -65,7 +72,7 @@ export const NewOrderPage = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <>
       <Text fontSize={"2xl"} fontWeight="bold" textColor={"purple.800"} mt={8}>
         Seleccione los productos deseados...
       </Text>
@@ -74,23 +81,30 @@ export const NewOrderPage = () => {
           <ItemBox
             key={product.id}
             item={product}
-            selected={selectedItems.some((item) => item.productId === product.id)}
+            selected={selectedItems.some(
+              (item) => item.productId === product.id
+            )}
             handleSelection={handleSelect}
             handleAdd={handleAdd}
             handleSus={handleSus}
             redirect={false}
             count={
-              selectedItems.find((item) => item.productId === product.id)?.quantity
+              selectedItems.find((item) => item.productId === product.id)
+                ?.quantity
             }
           />
         ))}
       </SimpleGrid>
       <Flex w="full" justify="right" position="sticky" bottom={6}>
-        <Button variant="solid" colorScheme="purple" size="lg" type="submit">
+        <Button variant="solid" colorScheme="purple" size="lg" type="submit" disabled={orderCreateLoad} onClick={()=>{
+          onSubmit({
+            productOrders: selectedItems
+          })
+        }}>
           Finalizar Orden
         </Button>
       </Flex>
-    </form>
+    </>
   );
 };
 

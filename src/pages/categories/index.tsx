@@ -23,7 +23,7 @@ const CategoriesListingPage = () => {
           <Tbody textAlign={'center'}>
             {data?.map((category) => {
               return (
-                <Tr key={category.id}>
+                <Tr key={category.code}>
                   <Td>{category.code}</Td>
                   <Td>{category.name}</Td>
                   <Td>{category.content}</Td>

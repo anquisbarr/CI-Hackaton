@@ -5,6 +5,7 @@ import {
 import { createRouter } from "../createRouter";
 import * as trpc from "@trpc/server";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { Product } from "@prisma/client";
 
 export const productRouter = createRouter()
   .mutation("create", {
@@ -18,8 +19,9 @@ export const productRouter = createRouter()
       }
 
       try {
-        const product = await ctx.prisma.product.create({
+        const product: Product = await ctx.prisma.product.create({
           data: {
+            id: input.id,
             name: input.name,
             code: input.code,
             price: input.price,
@@ -29,18 +31,19 @@ export const productRouter = createRouter()
 
             category: {
               connectOrCreate: {
-                create: {
-                  code: "X",
-                  name: "Uncategorized",
-                  content: "Uncategorized so no content given.",
-                },
                 where: {
                   code: input.categoryCode,
+                },
+                create: {
+                  code: 'XX',
+                  name: 'XX',
+                  content: 'Content for XX',
                 },
               },
             },
           },
         });
+
         return product;
       } catch (e) {
         if (e instanceof PrismaClientKnownRequestError) {

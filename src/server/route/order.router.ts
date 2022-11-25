@@ -2,6 +2,8 @@ import { createRouter } from "../createRouter";
 import * as trpc from "@trpc/server";
 import { createProductOrderSchema, CreateOrderInput, createOrderSchema} from "../../schema/product-order.schema";
 import z from "zod";
+import { GetSingleProductInput } from "../../schema/product.schema";
+import { Product } from "@prisma/client";
 
 export const orderRouter = createRouter()
     .mutation("createOrder", {
@@ -22,7 +24,7 @@ export const orderRouter = createRouter()
                 });
             }
 
-            const product: any = await ctx.prisma.product.findUnique({
+            const product = await ctx.prisma.product.findUnique({
                 where: {
                     id: productId,
                 },
@@ -35,13 +37,11 @@ export const orderRouter = createRouter()
                 });
             }
 
-            var price: string = product.price.replace(",", ".");
-            var priceNumber: number = parseFloat(price);
-            var totalPrice: number = (priceNumber * quantity);
-            console.log(product.price,price,priceNumber,totalPrice);
+            var price: number = product.price;
+            var totalPrice: number = (price * quantity);
 
             try {
-                const productOrder = await ctx.prisma.productsOnOrder.create({
+                const productOrder:any = await ctx.prisma.productsOnOrder.create({
                     data: {
                         quantity,
                         product: {
@@ -92,12 +92,12 @@ export const orderRouter = createRouter()
                 });
             }
 
-            
-
-            const total = productOrders.reduce((acc, cur) => {
-                const product:any = ctx.prisma.product.findUnique({
+            console.log("productOrders", productOrders);
+            let totalPrice:number = 0;
+            for (let i = 0; i < productOrders.length; i++) {
+                const product: Product | null = await ctx.prisma.product.findUnique({
                     where: {
-                        id: cur.productId,
+                        id: productOrders[i].productId,
                     },
                 });
                 if (product === null) {
@@ -106,14 +106,9 @@ export const orderRouter = createRouter()
                         message: 'Product not found',
                     });
                 }
-                const price = product.price.replace(',', '.');
-                const priceNumber = parseFloat(price);
-                const totalPrice = priceNumber * cur.quantity;
-                return acc + totalPrice;
-            }, 0);
-
-            console.log("productOrders", productOrders);
-            console.log("total", total);
+                totalPrice += product.price * productOrders[i].quantity;
+            }
+            console.log("totalPrice", totalPrice);
 
             const order = await ctx.prisma.order.create({
                 data: {
@@ -123,16 +118,21 @@ export const orderRouter = createRouter()
                         },
                     },
                     ProductsOnOrder: {
-                        create: productOrders.map((productOrder) => ({
-                            quantity: productOrder.quantity,
-                            product: {
-                                connect: {
-                                    id: productOrder.productId,
+                        connectOrCreate: productOrders.map((productOrder) => ({
+                            where: {
+                                id: productOrder.productId,
+                            },
+                            create: {
+                                quantity: productOrder.quantity,
+                                product: {
+                                    connect: {
+                                        id: productOrder.productId,
+                                    },
                                 },
                             },
                         })),
                     },
-                    total,
+                    total: totalPrice,
                 },
             });
             return order;

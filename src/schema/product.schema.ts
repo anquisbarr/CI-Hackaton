@@ -3,9 +3,10 @@ import z from 'zod';
 // TODO: fix price and stock to be numbers, code forced.
 
 export const createProductSchema = z.object({
+    id: z.string(),
     code: z.string().max(5),
     name: z.string().max(150,'Max 150 characters'),
-    price: z.string(),
+    price: z.number(),
     stock: z.string(),
     image: z.string().url(),
     content: z.string().min(10),
@@ -15,5 +16,7 @@ export const createProductSchema = z.object({
 export type CreateProductInput = z.TypeOf<typeof createProductSchema>
 
 export const getSingleProductSchema = z.object({
-    productId: z.string().uuid(),
+    productId: z.string(),
 })
+
+export type GetSingleProductInput = z.TypeOf<typeof getSingleProductSchema>

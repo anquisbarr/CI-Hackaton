@@ -51,7 +51,7 @@ model Product {
   id      String @unique // now is a concated string of category and code
   code    String @unique
   name    String
-  price   String //TODO: fix
+  price   Int
   stock   String //TODO: fix
   image   String
   content String
@@ -65,7 +65,6 @@ model Product {
 }
 
 model Category {
-  id       String    @unique @default(uuid())
   code     String    @unique
   name     String
   content  String

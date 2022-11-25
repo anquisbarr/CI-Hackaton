@@ -9,7 +9,7 @@ export interface ItemBoxProps {
   id: string;
   name: string;
   image: string;
-  price: string;
+  price: number;
   stock: string;
   categoryCode: string;
 }
