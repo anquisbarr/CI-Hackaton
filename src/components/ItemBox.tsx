@@ -4,12 +4,12 @@ import { Image } from '@chakra-ui/image';
 import NextLink from 'next/link';
 import { ItemBoxProps } from './HomeProducts';
 import { HStack, StackDivider } from '@chakra-ui/react';
-import { Item } from '../pages/orders/new';
+import { CreateProductOrderInput } from '../schema/product-order.schema';
 
 type Props = {
   item: ItemBoxProps;
   selected?: boolean;
-  handleSelection?: (item: Item) => void;
+  handleSelection?: (item: CreateProductOrderInput) => void;
   handleAdd?: (id: string) => void;
   handleSus?: (id: string) => void;
   redirect?: boolean;
@@ -34,7 +34,7 @@ export const ItemBox: React.FC<Props> = ({
       backgroundColor='#ffffff'
       boxShadow='md'
       borderColor={selected ? 'purple.500' : 'default'}
-      onClick={() => handleSelection({ id: item.id, count: 1 })}
+      onClick={() => handleSelection({ quantity: 1,  productId: item.id})}
       position='relative'
     >
       {selected && (

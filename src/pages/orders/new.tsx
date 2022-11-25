@@ -1,27 +1,30 @@
-import { Button, Flex, SimpleGrid, Text } from '@chakra-ui/react';
-import dynamic from 'next/dynamic';
-import React from 'react';
-import ItemBox from '../../components/ItemBox';
-import Loading from '../../components/Loading';
-import { trpc } from '../../utils/trpc';
-
-const OrderForm = dynamic(() => import('../../components/OrderForm'), {
-  ssr: false,
-});
-
-export type Item = {
-  id: string;
-  count: number;
-};
+import { Button, Flex, SimpleGrid, Text } from "@chakra-ui/react";
+import React from "react";
+import { useForm } from "react-hook-form";
+import ItemBox from "../../components/ItemBox";
+import Loading from "../../components/Loading";
+import { CreateOrderInput, CreateProductOrderInput } from "../../schema/product-order.schema";
+import { trpc } from "../../utils/trpc";
 
 export const NewOrderPage = () => {
-  const { data, isLoading } = trpc.useQuery(['products.products']);
-  const [selectedItems, setSelectedItems] = React.useState<Item[]>([]);
+  const { data, isLoading } = trpc.useQuery(["products.products"]);
+  const [selectedItems, setSelectedItems] = React.useState<CreateProductOrderInput[]>([]);
+  const { register, handleSubmit } = useForm<CreateOrderInput>();
+  const { mutate, error } = trpc.useMutation("orders.create-order");
 
-  function handleSelect(selected: Item) {
-    if (selectedItems.some((item) => item.id === selected.id)) {
+  function onSubmit(values: CreateOrderInput) {
+    values.productOrders = selectedItems;
+    register("productOrders");
+    // console.log("register", register);
+    // console.log("selectedItems []", selectedItems);
+    // console.log("values", values);
+    mutate(values);
+  }
+  
+  function handleSelect(selected: CreateProductOrderInput) {
+    if (selectedItems.some((item) => item.productId === selected.productId)) {
       setSelectedItems([
-        ...selectedItems.filter((item) => item.id !== selected.id),
+        ...selectedItems.filter((item) => item.productId !== selected.productId),
       ]);
     } else {
       setSelectedItems([...selectedItems, selected]);
@@ -29,24 +32,24 @@ export const NewOrderPage = () => {
   }
 
   const handleAdd = (id: string) => {
-    const index = selectedItems.findIndex((item) => item.id === id);
+    const index = selectedItems.findIndex((item) => item.productId === id);
     if (index !== -1) {
       let newArr = [...selectedItems];
-      newArr[index].count = newArr[index].count + 1;
+      newArr[index].quantity = newArr[index].quantity + 1;
       setSelectedItems([...newArr]);
     }
   };
 
   const handleSus = (id: string) => {
-    const index = selectedItems.findIndex((item) => item.id === id);
+    const index = selectedItems.findIndex((item) => item.productId === id);
     if (index !== -1) {
       let newArr = [...selectedItems];
-      let newCount = newArr[index].count - 1;
+      let newCount = Number(newArr[index].quantity) - 1;
       let newObject = { ...newArr[index], count: newCount };
       newArr[index] = { ...newObject };
 
       if (newCount == 0) {
-        setSelectedItems([...selectedItems.filter((item) => item.id !== id)]);
+        setSelectedItems([...selectedItems.filter((item) => item.productId !== id)]);
       } else {
         setSelectedItems([...newArr]);
       }
@@ -62,8 +65,8 @@ export const NewOrderPage = () => {
   }
 
   return (
-    <form onSubmit={() => {}}>
-      <Text fontSize={'2xl'} fontWeight='bold' textColor={'purple.800'} mt={8}>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Text fontSize={"2xl"} fontWeight="bold" textColor={"purple.800"} mt={8}>
         Seleccione los productos deseados...
       </Text>
       <SimpleGrid columns={[1, 2, 3, 4]} spacing={10} my={10}>
@@ -71,17 +74,19 @@ export const NewOrderPage = () => {
           <ItemBox
             key={product.id}
             item={product}
-            selected={selectedItems.some((item) => item.id === product.id)}
+            selected={selectedItems.some((item) => item.productId === product.id)}
             handleSelection={handleSelect}
             handleAdd={handleAdd}
             handleSus={handleSus}
             redirect={false}
-            count={selectedItems.find((item) => item.id === product.id)?.count}
+            count={
+              selectedItems.find((item) => item.productId === product.id)?.quantity
+            }
           />
         ))}
       </SimpleGrid>
-      <Flex w='full' justify='right' position='sticky' bottom={6}>
-        <Button variant='solid' colorScheme='purple' size='lg' type='submit'>
+      <Flex w="full" justify="right" position="sticky" bottom={6}>
+        <Button variant="solid" colorScheme="purple" size="lg" type="submit">
           Finalizar Orden
         </Button>
       </Flex>

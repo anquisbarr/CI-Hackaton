@@ -1,6 +1,6 @@
 import { createRouter } from "../createRouter";
 import * as trpc from "@trpc/server";
-import { createProductOrderSchema } from "../../schema/product-order.schema";
+import { createProductOrderSchema, CreateOrderInput, createOrderSchema} from "../../schema/product-order.schema";
 import z from "zod";
 
 export const orderRouter = createRouter()
@@ -37,7 +37,7 @@ export const orderRouter = createRouter()
 
             var price: string = product.price.replace(",", ".");
             var priceNumber: number = parseFloat(price);
-            var totalPrice: string = String(priceNumber * parseInt(quantity));
+            var totalPrice: number = (priceNumber * quantity);
             console.log(product.price,price,priceNumber,totalPrice);
 
             try {
@@ -74,7 +74,71 @@ export const orderRouter = createRouter()
             }
 
         }
-    }).query('all', {
+    })
+    .mutation('create-order', {
+        input: createOrderSchema,
+        resolve: async ({ ctx, input }) => {
+            // create order
+            const { productOrders } = input;
+            const user = await ctx.prisma.user.findUnique({
+                where: {
+                  email: ctx.user?.email,
+                },
+              });
+            if (user === null) {
+                throw new trpc.TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'User not found',
+                });
+            }
+
+            
+
+            const total = productOrders.reduce((acc, cur) => {
+                const product:any = ctx.prisma.product.findUnique({
+                    where: {
+                        id: cur.productId,
+                    },
+                });
+                if (product === null) {
+                    throw new trpc.TRPCError({
+                        code: 'NOT_FOUND',
+                        message: 'Product not found',
+                    });
+                }
+                const price = product.price.replace(',', '.');
+                const priceNumber = parseFloat(price);
+                const totalPrice = priceNumber * cur.quantity;
+                return acc + totalPrice;
+            }, 0);
+
+            console.log("productOrders", productOrders);
+            console.log("total", total);
+
+            const order = await ctx.prisma.order.create({
+                data: {
+                    user: {
+                        connect: {
+                            id: user.id,
+                        },
+                    },
+                    ProductsOnOrder: {
+                        create: productOrders.map((productOrder) => ({
+                            quantity: productOrder.quantity,
+                            product: {
+                                connect: {
+                                    id: productOrder.productId,
+                                },
+                            },
+                        })),
+                    },
+                    total,
+                },
+            });
+            return order;
+        }
+    })
+    .query('all', {
         resolve: async ({ ctx }) => {
             return await ctx.prisma.order.findMany();
         }

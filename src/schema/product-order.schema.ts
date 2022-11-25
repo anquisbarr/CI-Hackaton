@@ -1,8 +1,8 @@
 import z from "zod";
 
 export const createProductOrderSchema = z.object({
-    quantity: z.string(),
-    productId: z.string().uuid(),
+    quantity: z.number(),
+    productId: z.string(),
 });
 
 export type CreateProductOrderInput = z.TypeOf<typeof createProductOrderSchema>
@@ -13,3 +13,9 @@ export const updateProductOrderSchema = z.object({
 });
 
 export type UpdateProductOrderInput = z.TypeOf<typeof updateProductOrderSchema>
+
+export const createOrderSchema = z.object({
+    productOrders: z.array(createProductOrderSchema),
+});
+
+export type CreateOrderInput = z.TypeOf<typeof createOrderSchema>
