@@ -14,13 +14,13 @@ export const Header: React.FC<HeaderProps> = (props: HeaderProps) => {
     <>
       <Flex px="4" py="4" justify="space-around" borderBottom="1px" borderColor="purple.100">
         <Text as={"div"} fontSize="2xl" fontWeight={"bold"} cursor="pointer">
-          <span role="img" aria-labelledby="pill">
-            💊
+          <span role="img" aria-labelledby="speaker">
+            📢
           </span>
           <span>
             <NextLink href="/">
               <Text as={"span"} color="purple.600" paddingLeft={"1"}>
-                FarmIndustria
+                DigaMED
               </Text>
             </NextLink>
           </span>
